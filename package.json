@@ -1,0 +1,7 @@
+{
+  "name": "my-survey",
+  "version": "1.0.0",
+  "dependencies": {
+    "firebase": "^10.4.0"
+  }
+}

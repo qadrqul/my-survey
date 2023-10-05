@@ -1,3 +1,16 @@
+const firebaseConfig = {
+    apiKey: "AIzaSyCFl1OIYVJBMyr4CAVMLcDGU9evSanCuhg",
+    authDomain: "student-survey-d366b.firebaseapp.com",
+    databaseURL: "https://student-survey-d366b-default-rtdb.firebaseio.com",
+    projectId: "student-survey-d366b",
+    storageBucket: "student-survey-d366b.appspot.com",
+    messagingSenderId: "511462276325",
+    appId: "1:511462276325:web:8edab6570e8e8e71a5680c",
+    measurementId: "G-F0ER919KS2"
+};
+
+// Инициализация Firebase
+firebase.initializeApp(firebaseConfig);
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -106,6 +119,22 @@ function submitQuiz() {
         <p>Правильные ответы: ${correctAnswers} из 10</p>
         <p>Спасибо за участие в опросе!</p>
     `;
+
+    const database = firebase.database();
+    const userId = 'some_unique_user_id'; // Замените на уникальный идентификатор пользователя
+    const quizDataRef = database.ref(`quiz_results/${userId}`);
+
+    quizDataRef.set({
+        correctAnswers: correctAnswers,
+        responses: responses,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    })
+        .then(() => {
+            console.log('Ответы успешно отправлены в Firebase!');
+        })
+        .catch(error => {
+            console.error('Ошибка при отправке ответов в Firebase:', error);
+        });
 
     console.log(`Правильные ответы: ${correctAnswers} из 10`);
     console.log(responses);
