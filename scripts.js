@@ -11,6 +11,13 @@ const firebaseConfig = {
 
 // Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
+
+// Функция для генерации уникального идентификатора пользователя
+function generateUserId() {
+    return uuidv4();
+}
+
+// Функция для перемешивания массива
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -19,6 +26,7 @@ function shuffle(array) {
     return array;
 }
 
+// Функция для загрузки файла с пословицами
 function loadFile(filePath) {
     return fetch(filePath)
         .then(response => response.text())
@@ -30,30 +38,37 @@ function loadFile(filePath) {
 let realProverbs = [];
 let generatedProverbs = [];
 
+// Глобальная переменная для хранения случайных вопросов
+let quizProverbs = [];
+
+// Функция для получения случайных пословиц
 function getRandomProverbs() {
     let selectedReal = [];
     let selectedGenerated = [];
 
-    while(selectedReal.length < 5) {
+    while (selectedReal.length < 5) {
         let randomIndex = Math.floor(Math.random() * realProverbs.length);
-        if(!selectedReal.includes(realProverbs[randomIndex])) {
+        if (!selectedReal.includes(realProverbs[randomIndex])) {
             selectedReal.push(realProverbs[randomIndex]);
         }
     }
 
-    while(selectedGenerated.length < 5) {
+    while (selectedGenerated.length < 5) {
         let randomIndex = Math.floor(Math.random() * generatedProverbs.length);
-        if(!selectedGenerated.includes(generatedProverbs[randomIndex])) {
+        if (!selectedGenerated.includes(generatedProverbs[randomIndex])) {
             selectedGenerated.push(generatedProverbs[randomIndex]);
         }
     }
 
-    const combined = selectedReal.map(p => ({proverb: p, isGenerated: false}))
-        .concat(selectedGenerated.map(p => ({proverb: p, isGenerated: true})));
+    const combined = selectedReal.map(p => ({ proverb: p, isGenerated: false }))
+        .concat(selectedGenerated.map(p => ({ proverb: p, isGenerated: true })));
 
-    return shuffle(combined);
+    quizProverbs = shuffle(combined); // Сохраняем случайные вопросы
+
+    return quizProverbs;
 }
 
+// Функция для генерации опроса
 function generateQuiz() {
     const quizDiv = document.getElementById('quiz');
     const proverbs = getRandomProverbs();
@@ -61,17 +76,18 @@ function generateQuiz() {
     proverbs.forEach((proverbObj, index) => {
         const questionDiv = document.createElement('div');
         questionDiv.innerHTML = `
-            <p>${index+1}. Это пословица сгенерированная?</p>
+            <p>${index + 1}) Это пословица сгенерированная?</p>
             <p>"${proverbObj.proverb}"</p>
-            <input type="radio" name="q${index + 3}" value="true">Да
-            <input type="radio" name="q${index + 3}" value="false">Нет
+            <input type="radio" name="q${index + 1}" value="true">Да
+            <input type="radio" name="q${index + 1}" value="false">Нет
         `;
         quizDiv.appendChild(questionDiv);
     });
 }
 
+// Функция для проверки, что все вопросы были отвечены
 function isAllQuestionsAnswered() {
-    for (let i = 3; i < 13; i++) {
+    for (let i = 1; i <= 10; i++) {
         const checked = document.querySelector(`input[name="q${i}"]:checked`);
         if (!checked) {
             return false;
@@ -80,6 +96,7 @@ function isAllQuestionsAnswered() {
     return true;
 }
 
+// Функция для отправки результатов опроса
 function submitQuiz() {
     if (!isAllQuestionsAnswered()) {
         alert("Пожалуйста, ответьте на все вопросы перед отправкой опроса.");
@@ -89,19 +106,17 @@ function submitQuiz() {
     const responses = [];
     let correctAnswers = 0;
 
-    const proverbs = getRandomProverbs();
-
-    for(let i = 0; i < 10; i++) {
-        const value = document.querySelector(`input[name="q${i + 3}"]:checked`).value;
-        const isCorrect = (value === "true" && proverbs[i].isGenerated) ||
-            (value === "false" && !proverbs[i].isGenerated);
+    for (let i = 0; i < 10; i++) {
+        const value = document.querySelector(`input[name="q${i + 1}"]:checked`).value;
+        const isCorrect = (value === "true" && quizProverbs[i].isGenerated) ||
+            (value === "false" && !quizProverbs[i].isGenerated);
 
         if (isCorrect) correctAnswers++;
 
         responses.push({
-            proverb: proverbs[i].proverb,
+            proverb: quizProverbs[i].proverb,
             userAnswer: value === "true",
-            correctAnswer: proverbs[i].isGenerated,
+            correctAnswer: quizProverbs[i].isGenerated,
             isCorrect
         });
     }
@@ -121,7 +136,7 @@ function submitQuiz() {
     `;
 
     const database = firebase.database();
-    const userId = 'some_unique_user_id'; // Замените на уникальный идентификатор пользователя
+    const userId = generateUserId();
     const quizDataRef = database.ref(`quiz_results/${userId}`);
 
     quizDataRef.set({
@@ -140,6 +155,7 @@ function submitQuiz() {
     console.log(responses);
 }
 
+// Загрузка файлов с пословицами
 Promise.all([
     loadFile('proverbs/mixed_proverbs.txt'),
     loadFile('proverbs/mixed_generated_proverbs.txt')
