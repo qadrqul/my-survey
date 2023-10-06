@@ -27,18 +27,30 @@ function shuffle(array) {
 }
 
 // Функция для загрузки файла с пословицами
-function loadFile(filePath) {
+function loadFile(filePath, isQuiz = false) {
     return fetch(filePath)
         .then(response => response.text())
         .then(data => {
-            return data.split('\n').filter(line => line.trim() !== '');
+            if (isQuiz) {
+                const questions = [];
+                const lines = data.split('\n').filter(line => line.trim() !== '');
+                for (let i = 0; i < lines.length; i += 4) {
+                    questions.push({
+                        question: lines[i],
+                        answers: [lines[i+1], lines[i+2], lines[i+3]].map(a => a.replace('*', '')),
+                        correctAnswerIndex: [lines[i+1], lines[i+2], lines[i+3]].findIndex(a => a.startsWith('*'))
+                    });
+                }
+                return questions;
+            } else {
+                return data.split('\n').filter(line => line.trim() !== '');
+            }
         });
 }
 
 let realProverbs = [];
 let generatedProverbs = [];
-
-// Глобальная переменная для хранения случайных вопросов
+let languageQuestions = [];
 let quizProverbs = [];
 
 // Функция для получения случайных пословиц
@@ -68,9 +80,25 @@ function getRandomProverbs() {
     return quizProverbs;
 }
 
-// Функция для генерации опроса
+function generateLanguageQuiz() {
+    const quizDiv = document.getElementById('language-questions-section');
+    const selectedLanguageQuestions = shuffle(languageQuestions).slice(0, 3);
+
+    selectedLanguageQuestions.forEach((questionObj, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.innerHTML = `
+            <p>${questionObj.question}</p>
+            ${questionObj.answers.map((answer, aIndex) => `
+                <input type="radio" name="langQ${index + 1}" value="${aIndex}">${answer}
+            `).join('')}
+        `;
+        quizDiv.appendChild(questionDiv);
+    });
+}
+
 function generateQuiz() {
-    const quizDiv = document.getElementById('quiz');
+    generateLanguageQuiz();
+    const proverbsQuizDiv = document.getElementById('proverbs-questions-section');
     const proverbs = getRandomProverbs();
 
     proverbs.forEach((proverbObj, index) => {
@@ -78,12 +106,13 @@ function generateQuiz() {
         questionDiv.innerHTML = `
             <p>${index + 1}) Төмөндөгү макал жасалмабы же чыныгыбы?</p>
             <p>"${proverbObj.proverb}"</p>
-            <input type="radio" name="q${index + 1}" value="true">Жасалма
             <input type="radio" name="q${index + 1}" value="false">Чыныгы
+            <input type="radio" name="q${index + 1}" value="true">Жасалма
         `;
-        quizDiv.appendChild(questionDiv);
+        proverbsQuizDiv.appendChild(questionDiv);
     });
 }
+
 
 // Функция для проверки, что все вопросы были отвечены
 function isAllQuestionsAnswered() {
@@ -96,6 +125,41 @@ function isAllQuestionsAnswered() {
     return true;
 }
 
+function renderAnswers() {
+    const answersDiv = document.getElementById('answers');
+    let html = '<h2>Ответы:</h2>';
+
+    quizProverbs.forEach((proverbObj, index) => {
+        const userAnswer = document.querySelector(`input[name="q${index + 1}"]:checked`).value === "true";
+        const correctAnswer = proverbObj.isGenerated;
+
+        html += `
+            <p><strong>Пословица:</strong> "${proverbObj.proverb}"</p>
+            <p><strong>Ваш ответ:</strong> ${userAnswer ? 'Жасалма' : 'Чыныгы'}</p>
+            <p><strong>Правильный ответ:</strong> ${correctAnswer ? 'Жасалма' : 'Чыныгы'}</p>
+            <hr>
+        `;
+    });
+
+    answersDiv.innerHTML = html;
+}
+
+function toggleAnswers() {
+    const answersDiv = document.getElementById('answers');
+    const showAnswersButton = document.getElementById('show-answers-button');
+
+    if (answersDiv.style.display === 'none' || answersDiv.style.display === '') {
+        renderAnswers();
+        answersDiv.style.display = 'block';
+        showAnswersButton.innerText = 'Скрыть ответы';
+    } else {
+        answersDiv.style.display = 'none';
+        showAnswersButton.innerText = 'Показать ответы';
+    }
+}
+
+
+// Функция для отправки результатов опроса
 // Функция для отправки результатов опроса
 function submitQuiz() {
     if (!isAllQuestionsAnswered()) {
@@ -103,16 +167,60 @@ function submitQuiz() {
         return;
     }
 
+    let languageCorrect = true; // Для отслеживания правильных ответов на языковые вопросы
+
+    for (let i = 0; i < 3; i++) {
+        const checkedValue = document.querySelector(`input[name="langQ${i + 1}"]:checked`);
+        if (!checkedValue) {
+            alert("Сураныч, сурамжылоону тапшыруудан мурун бардык суроолорго жооп бериңиз!");
+            return;
+        }
+        const isCorrect = parseInt(checkedValue.value) === languageQuestions[i].correctAnswerIndex;
+        if (!isCorrect) {
+            languageCorrect = false;
+            break; // Если хоть один ответ неверный, прерываем цикл
+        }
+    }
     const responses = [];
     let correctAnswers = 0;
+    if (!languageCorrect) {
+        alert("Сиз текшерүү суроолордун бирине туура эмес жооп бердиңиз. Жоопторуңуз жөнөтүлбөйт жана базада сакталбайт.");
+
+        for (let i = 0; i < 10; i++) {
+            const value = document.querySelector(`input[name="q${i + 1}"]:checked`).value;
+            const isCorrect = (value === "true" && quizProverbs[i].isGenerated) ||
+                (value === "false" && !quizProverbs[i].isGenerated);
+            if (isCorrect) correctAnswers++;
+            responses.push({
+                proverb: quizProverbs[i].proverb,
+                userAnswer: value === "true",
+                correctAnswer: quizProverbs[i].isGenerated,
+                isCorrect
+            });
+        }
+
+        const quizDiv = document.getElementById('quiz');
+        const submitButton = document.getElementById('submit-button');
+        quizDiv.style.display = 'none';
+        submitButton.style.display = 'none';
+
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'block';
+        resultDiv.style.textAlign = 'center';
+        document.getElementById('show-answers-button').style.display = 'block';
+        const percentageCorrectAnswers = (correctAnswers / 10) * 100;
+        resultDiv.innerHTML = `
+        <p>Туура жооптор: ${percentageCorrectAnswers}%</p>
+        <p>Катышканыңыз үчүн рахмат!</p>
+    `;
+        return;
+    }
 
     for (let i = 0; i < 10; i++) {
         const value = document.querySelector(`input[name="q${i + 1}"]:checked`).value;
         const isCorrect = (value === "true" && quizProverbs[i].isGenerated) ||
             (value === "false" && !quizProverbs[i].isGenerated);
-
         if (isCorrect) correctAnswers++;
-
         responses.push({
             proverb: quizProverbs[i].proverb,
             userAnswer: value === "true",
@@ -129,9 +237,10 @@ function submitQuiz() {
     const resultDiv = document.getElementById('result');
     resultDiv.style.display = 'block';
     resultDiv.style.textAlign = 'center';
-
+    document.getElementById('show-answers-button').style.display = 'block';
+    const percentageCorrectAnswers = (correctAnswers / 10) * 100;
     resultDiv.innerHTML = `
-        <p>Туура жооптор: 10/${correctAnswers}</p>
+        <p>Туура жооптор: ${percentageCorrectAnswers}%</p>
         <p>Катышканыңыз үчүн рахмат!</p>
     `;
 
@@ -151,7 +260,7 @@ function submitQuiz() {
             console.error('Error sending responses to Firebase:', error);
         });
 
-    console.log(`Туура жооптор: 10 - ${correctAnswers}`);
+    console.log(`Туура жооптор: ${percentageCorrectAnswers}%`);
     console.log(responses);
 }
 
@@ -159,17 +268,19 @@ function startQuiz() {
     document.getElementById('intro').style.display = 'none';
     document.getElementById('quiz').style.display = 'block';
     document.getElementById('submit-button').style.display = 'block';
-    // Загрузка файлов с пословицами
-    Promise.all([
-        loadFile('proverbs/mixed_proverbs.txt'),
-        loadFile('proverbs/mixed_generated_proverbs.txt')
-    ])
-        .then(results => {
-            realProverbs = results[0];
-            generatedProverbs = results[1];
-            generateQuiz();
-        })
-        .catch(error => {
-            console.error("Файлдарды көчүргөндө ката чыкты: ", error);
-        });
 }
+// Загрузка файлов с пословицами
+Promise.all([
+    loadFile('files/questions.txt', true),
+    loadFile('files/mixed_proverbs.txt'),
+    loadFile('files/mixed_generated_proverbs.txt')
+])
+    .then(results => {
+        languageQuestions = results[0];
+        realProverbs = results[1];
+        generatedProverbs = results[2];
+        generateQuiz();
+    })
+    .catch(error => {
+        console.error("Файлдарды көчүргөндө ката чыкты: ", error);
+    });

@@ -7,7 +7,7 @@ body {
 
 #container {
     max-width: 800px;
-    margin: 0 auto;
+    margin: 2% auto;
     padding: 20px;
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -26,7 +26,7 @@ h1 {
     margin: 0 auto 20px;
 }
 
-#quiz {
+#quiz, #language-questions-section, #proverbs-questions-section {
     text-align: left;
     padding: 20px;
     background-color: #fff;
@@ -35,7 +35,11 @@ h1 {
     margin-bottom: 20px;
 }
 
-#quiz p {
+#language-questions-section{
+    color: #536680;
+}
+
+#quiz p, #language-questions-section p, #proverbs-questions-section p {
     font-size: 18px;
     margin-bottom: 10px;
 }
@@ -79,4 +83,10 @@ button#submit-button:hover {
     font-size: 16px;
     color: #666;
     margin: 10px 0;
+}
+
+.section-title {
+    font-size: 20px;
+    text-align: center;
+    margin-top: 20px;
 }
