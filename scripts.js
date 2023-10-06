@@ -127,16 +127,16 @@ function isAllQuestionsAnswered() {
 
 function renderAnswers() {
     const answersDiv = document.getElementById('answers');
-    let html = '<h2>Ответы:</h2>';
+    let html = '<h2>Жооптор:</h2>';
 
     quizProverbs.forEach((proverbObj, index) => {
         const userAnswer = document.querySelector(`input[name="q${index + 1}"]:checked`).value === "true";
         const correctAnswer = proverbObj.isGenerated;
 
         html += `
-            <p><strong>Пословица:</strong> "${proverbObj.proverb}"</p>
-            <p><strong>Ваш ответ:</strong> ${userAnswer ? 'Жасалма' : 'Чыныгы'}</p>
-            <p><strong>Правильный ответ:</strong> ${correctAnswer ? 'Жасалма' : 'Чыныгы'}</p>
+            <p><strong>Макал-лакап:</strong> "${proverbObj.proverb}"</p>
+            <p><strong>Сиздин жообуңуз:</strong> ${userAnswer ? 'Жасалма' : 'Чыныгы'}</p>
+            <p><strong>Туура жооп:</strong> ${correctAnswer ? 'Жасалма' : 'Чыныгы'}</p>
             <hr>
         `;
     });
