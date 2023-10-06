@@ -76,10 +76,10 @@ function generateQuiz() {
     proverbs.forEach((proverbObj, index) => {
         const questionDiv = document.createElement('div');
         questionDiv.innerHTML = `
-            <p>${index + 1}) Это пословица сгенерированная?</p>
+            <p>${index + 1}) Төмөндөгү макал жасалмабы же чыныгыбы?</p>
             <p>"${proverbObj.proverb}"</p>
-            <input type="radio" name="q${index + 1}" value="true">Да
-            <input type="radio" name="q${index + 1}" value="false">Нет
+            <input type="radio" name="q${index + 1}" value="true">Жасалма
+            <input type="radio" name="q${index + 1}" value="false">Чыныгы
         `;
         quizDiv.appendChild(questionDiv);
     });
@@ -99,7 +99,7 @@ function isAllQuestionsAnswered() {
 // Функция для отправки результатов опроса
 function submitQuiz() {
     if (!isAllQuestionsAnswered()) {
-        alert("Пожалуйста, ответьте на все вопросы перед отправкой опроса.");
+        alert("Сураныч, сурамжылоону тапшыруудан мурун бардык суроолорго жооп бериңиз!");
         return;
     }
 
@@ -122,7 +122,7 @@ function submitQuiz() {
     }
 
     const quizDiv = document.getElementById('quiz');
-    const submitButton = document.querySelector('button');
+    const submitButton = document.getElementById('submit-button');
     quizDiv.style.display = 'none';
     submitButton.style.display = 'none';
 
@@ -131,8 +131,8 @@ function submitQuiz() {
     resultDiv.style.textAlign = 'center';
 
     resultDiv.innerHTML = `
-        <p>Правильные ответы: ${correctAnswers} из 10</p>
-        <p>Спасибо за участие в опросе!</p>
+        <p>Туура жооптор: 10/${correctAnswers}</p>
+        <p>Катышканыңыз үчүн рахмат!</p>
     `;
 
     const database = firebase.database();
@@ -145,26 +145,31 @@ function submitQuiz() {
         timestamp: firebase.database.ServerValue.TIMESTAMP
     })
         .then(() => {
-            console.log('Ответы успешно отправлены в Firebase!');
+            console.log('Successfully submitted to Firebase!');
         })
         .catch(error => {
-            console.error('Ошибка при отправке ответов в Firebase:', error);
+            console.error('Error sending responses to Firebase:', error);
         });
 
-    console.log(`Правильные ответы: ${correctAnswers} из 10`);
+    console.log(`Туура жооптор: 10 - ${correctAnswers}`);
     console.log(responses);
 }
 
-// Загрузка файлов с пословицами
-Promise.all([
-    loadFile('proverbs/mixed_proverbs.txt'),
-    loadFile('proverbs/mixed_generated_proverbs.txt')
-])
-    .then(results => {
-        realProverbs = results[0];
-        generatedProverbs = results[1];
-        generateQuiz();
-    })
-    .catch(error => {
-        console.error("Ошибка при загрузке файлов:", error);
-    });
+function startQuiz() {
+    document.getElementById('intro').style.display = 'none';
+    document.getElementById('quiz').style.display = 'block';
+    document.getElementById('submit-button').style.display = 'block';
+    // Загрузка файлов с пословицами
+    Promise.all([
+        loadFile('proverbs/mixed_proverbs.txt'),
+        loadFile('proverbs/mixed_generated_proverbs.txt')
+    ])
+        .then(results => {
+            realProverbs = results[0];
+            generatedProverbs = results[1];
+            generateQuiz();
+        })
+        .catch(error => {
+            console.error("Файлдарды көчүргөндө ката чыкты: ", error);
+        });
+}
