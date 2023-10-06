@@ -151,10 +151,10 @@ function toggleAnswers() {
     if (answersDiv.style.display === 'none' || answersDiv.style.display === '') {
         renderAnswers();
         answersDiv.style.display = 'block';
-        showAnswersButton.innerText = 'Скрыть ответы';
+        showAnswersButton.innerText = 'Жоопторду жашыруу';
     } else {
         answersDiv.style.display = 'none';
-        showAnswersButton.innerText = 'Показать ответы';
+        showAnswersButton.innerText = 'Туура жооптор';
     }
 }
 
