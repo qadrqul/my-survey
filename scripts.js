@@ -104,7 +104,7 @@ function generateQuiz() {
     proverbs.forEach((proverbObj, index) => {
         const questionDiv = document.createElement('div');
         questionDiv.innerHTML = `
-            <p>${index + 1}) Төмөндөгү макал жасалмабы же чыныгыбы?</p>
+            <p>${index + 1}) Төмөндөгү макал-лакап жасалмабы же чыныгыбы?</p>
             <p>"${proverbObj.proverb}"</p>
             <input type="radio" name="q${index + 1}" value="false">Чыныгы
             <input type="radio" name="q${index + 1}" value="true">Жасалма
@@ -184,36 +184,7 @@ function submitQuiz() {
     const responses = [];
     let correctAnswers = 0;
     if (!languageCorrect) {
-        alert("Сиз текшерүү суроолордун бирине туура эмес жооп бердиңиз. Жоопторуңуз жөнөтүлбөйт жана базада сакталбайт.");
-
-        for (let i = 0; i < 10; i++) {
-            const value = document.querySelector(`input[name="q${i + 1}"]:checked`).value;
-            const isCorrect = (value === "true" && quizProverbs[i].isGenerated) ||
-                (value === "false" && !quizProverbs[i].isGenerated);
-            if (isCorrect) correctAnswers++;
-            responses.push({
-                proverb: quizProverbs[i].proverb,
-                userAnswer: value === "true",
-                correctAnswer: quizProverbs[i].isGenerated,
-                isCorrect
-            });
-        }
-
-        const quizDiv = document.getElementById('quiz');
-        const submitButton = document.getElementById('submit-button');
-        quizDiv.style.display = 'none';
-        submitButton.style.display = 'none';
-
-        const resultDiv = document.getElementById('result');
-        resultDiv.style.display = 'block';
-        resultDiv.style.textAlign = 'center';
-        document.getElementById('show-answers-button').style.display = 'block';
-        const percentageCorrectAnswers = (correctAnswers / 10) * 100;
-        resultDiv.innerHTML = `
-        <p>Туура жооптор: ${percentageCorrectAnswers}%</p>
-        <p>Катышканыңыз үчүн рахмат!</p>
-    `;
-        return;
+        alert("Сиз текшерүүчү суроолордун бирине туура эмес жооп бердиңиз. Жоопторуңуз жөнөтүлбөйт жана базада сакталбайт.\nСураныч, суроолорго билип жооп бериңиз.");
     }
 
     for (let i = 0; i < 10; i++) {
@@ -244,24 +215,27 @@ function submitQuiz() {
         <p>Катышканыңыз үчүн рахмат!</p>
     `;
 
-    const database = firebase.database();
-    const userId = generateUserId();
-    const quizDataRef = database.ref(`quiz_results/${userId}`);
+    if(languageCorrect){
+        const database = firebase.database();
+        const userId = generateUserId();
+        const quizDataRef = database.ref(`quiz_results/${userId}`);
 
-    quizDataRef.set({
-        correctAnswers: correctAnswers,
-        responses: responses,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-    })
-        .then(() => {
-            console.log('Successfully submitted to Firebase!');
+        quizDataRef.set({
+            correctAnswers: correctAnswers,
+            responses: responses,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
         })
-        .catch(error => {
-            console.error('Error sending responses to Firebase:', error);
-        });
+            .then(() => {
+                console.log('Successfully submitted to Firebase!');
+            })
+            .catch(error => {
+                console.error('Error sending responses to Firebase:', error);
+            });
 
-    console.log(`Туура жооптор: ${percentageCorrectAnswers}%`);
-    console.log(responses);
+        console.log(`Туура жооптор: ${percentageCorrectAnswers}%`);
+        console.log(responses);
+    }
+
 }
 
 function startQuiz() {
