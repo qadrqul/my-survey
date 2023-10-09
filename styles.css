@@ -72,15 +72,8 @@ button#submit-button:hover {
     background-color: #0056b3;
 }
 
-.subtitle {
-    font-size: 16px;
-    color: #666;
-    text-align: center;
-    margin: 10px 0;
-}
-
 .text {
-    font-size: 16px;
+    font-size: 17px;
     color: #666;
     margin: 10px 0;
 }
