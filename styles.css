@@ -39,13 +39,13 @@ h1 {
     color: #536680;
 }
 
-#quiz p, #language-questions-section p, #proverbs-questions-section p {
+#quiz p, #language-questions-section p, #proverbs-questions-section p, #additional-questions-section p {
     font-size: 18px;
     margin-bottom: 10px;
 }
 
 input[type="radio"] {
-    margin-right: 10px;
+    margin-right: 5px;
 }
 
 #result {
@@ -83,3 +83,17 @@ button#submit-button:hover {
     text-align: center;
     margin-top: 20px;
 }
+#additional-questions-section {
+    text-align: left;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    color: #536680;
+}
+
+#additional-questions-section p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+

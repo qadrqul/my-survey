@@ -9,15 +9,12 @@ const firebaseConfig = {
     measurementId: "G-F0ER919KS2"
 };
 
-// Инициализация Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Функция для генерации уникального идентификатора пользователя
 function generateUserId() {
     return uuidv4();
 }
 
-// Функция для перемешивания массива
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -26,7 +23,6 @@ function shuffle(array) {
     return array;
 }
 
-// Функция для загрузки файла с пословицами
 function loadFile(filePath, isQuiz = false) {
     return fetch(filePath)
         .then(response => response.text())
@@ -53,7 +49,6 @@ let generatedProverbs = [];
 let languageQuestions = [];
 let quizProverbs = [];
 
-// Функция для получения случайных пословиц
 function getRandomProverbs() {
     let selectedReal = [];
     let selectedGenerated = [];
@@ -75,7 +70,7 @@ function getRandomProverbs() {
     const combined = selectedReal.map(p => ({ proverb: p, isGenerated: false }))
         .concat(selectedGenerated.map(p => ({ proverb: p, isGenerated: true })));
 
-    quizProverbs = shuffle(combined); // Сохраняем случайные вопросы
+    quizProverbs = shuffle(combined);
 
     return quizProverbs;
 }
@@ -113,8 +108,6 @@ function generateQuiz() {
     });
 }
 
-
-// Функция для проверки, что все вопросы были отвечены
 function isAllQuestionsAnswered() {
     for (let i = 1; i <= 10; i++) {
         const checked = document.querySelector(`input[name="q${i}"]:checked`);
@@ -158,16 +151,28 @@ function toggleAnswers() {
     }
 }
 
+function isUniformAnswer() {
+    const firstAnswer = document.querySelector('input[name="q1"]:checked').value;
+    for (let i = 2; i <= 10; i++) {
+        const currentAnswer = document.querySelector(`input[name="q${i}"]:checked`).value;
+        if (currentAnswer !== firstAnswer) {
+            return false;
+        }
+    }
+    return true;
+}
 
-// Функция для отправки результатов опроса
-// Функция для отправки результатов опроса
 function submitQuiz() {
     if (!isAllQuestionsAnswered()) {
         alert("Сураныч, сурамжылоону тапшыруудан мурун бардык суроолорго жооп бериңиз!");
         return;
     }
+    if (isUniformAnswer()) {
+        alert("Сураныч, суроолорго бирдей жооп бербеңиз! \nСурамжылоодо 5 чыныгы жана 5 жасалма макал-лакап бар.");
+        return;
+    }
 
-    let languageCorrect = true; // Для отслеживания правильных ответов на языковые вопросы
+    let languageCorrect = true;
 
     for (let i = 0; i < 3; i++) {
         const checkedValue = document.querySelector(`input[name="langQ${i + 1}"]:checked`);
@@ -178,10 +183,24 @@ function submitQuiz() {
         const isCorrect = parseInt(checkedValue.value) === languageQuestions[i].correctAnswerIndex;
         if (!isCorrect) {
             languageCorrect = false;
-            break; // Если хоть один ответ неверный, прерываем цикл
+            break;
         }
     }
     const responses = [];
+    const gender = document.querySelector('input[name="gender"]:checked');
+    const ageGroup = document.getElementById('age-group').value;
+    const location = document.querySelector('input[name="location"]:checked');
+    const region = document.getElementById('region').value;
+    if (!gender || !location) {
+        alert("Сураныч, сурамжылоону тапшыруудан мурун бардык суроолорго жооп бериңиз!");
+        return;
+    }
+    const userData = {
+        gender: gender.value,
+        ageGroup: ageGroup,
+        location: location.value,
+        region: region
+    };
     let correctAnswers = 0;
     if (!languageCorrect) {
         alert("Сиз текшерүүчү суроолордун бирине туура эмес жооп бердиңиз. Жоопторуңуз жөнөтүлбөйт жана базада сакталбайт.\nСураныч, суроолорго билип жооп бериңиз.");
@@ -215,14 +234,17 @@ function submitQuiz() {
         <p>Катышканыңыз үчүн рахмат!</p>
     `;
 
-    if(languageCorrect){
+    if (languageCorrect) {
         const database = firebase.database();
         const userId = generateUserId();
         const quizDataRef = database.ref(`quiz_results/${userId}`);
-
         quizDataRef.set({
             correctAnswers: correctAnswers,
             responses: responses,
+            gender: userData.gender,
+            ageGroup: userData.ageGroup,
+            location: userData.location,
+            region: userData.region,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         })
             .then(() => {
@@ -235,7 +257,6 @@ function submitQuiz() {
         console.log(`Туура жооптор: ${percentageCorrectAnswers}%`);
         console.log(responses);
     }
-
 }
 
 function startQuiz() {
@@ -243,7 +264,7 @@ function startQuiz() {
     document.getElementById('quiz').style.display = 'block';
     document.getElementById('submit-button').style.display = 'block';
 }
-// Загрузка файлов с пословицами
+
 Promise.all([
     loadFile('files/questions.txt', true),
     loadFile('files/mixed_proverbs.txt'),

@@ -16,18 +16,56 @@
     <div id="intro" style="display: block;">
         <h1 class="title">Биздин сурамжылоого кош келиңиз!</h1>
         <p class="text">Сиздерди макал-лакаптар боюнча сурамжылоого катышууга чакырабыз.</p>
-        <p class="text">Бул сурамжылоодо сиз кыргыз тилиндеги ар кандай макал-лакаптарды таба аласыз. Бирок, бардык эле макал-лакаптар чыныгы эмес, алардын арасында "Markov Chain" алгоритми менен түзүлгөн макал-лакаптар да бар. Аларды айырмалай аласызбы?</p>
-        <p class="text">Бул сурамжылоо жасалма интеллектин сырларын ачууга жана ал элдик чыгармачылыкты кантип туурай аларын түшүнүүгө жардам берет.</p>
+        <p class="text">Бул сурамжылоодо сиз кыргыз тилиндеги ар кандай макал-лакаптарды таба аласыз. Бирок, бардык эле
+            макал-лакаптар чыныгы эмес, алардын арасында "Markov Chain" алгоритми менен түзүлгөн макал-лакаптар да бар.
+            Сурамжылоодо 5 чыныгы жана 5 жасалма макал-лакап бар.
+            Аларды айырмалай аласызбы?</p>
+        <p class="text">Бул сурамжылоо жасалма интеллектин сырларын ачууга жана ал элдик чыгармачылыкты кантип туурай
+            аларын түшүнүүгө жардам берет.</p>
         <button class="btn" onclick="startQuiz()">Баштоо</button>
     </div>
     <div id="quiz" style="display: none;">
         <div id="language-questions-section">
             <h2>Текшерүү суроолору</h2>
-            <!-- Здесь будут языковые вопросы -->
         </div>
         <div id="proverbs-questions-section">
             <h2>Макал-лакаптар</h2>
-            <!-- Здесь будут вопросы с пословицами -->
+        </div>
+        <div id="additional-questions-section">
+            <h2>Кошумча суроолор</h2>
+            <div id="gender-question-section">
+                <p>Жыныс</p>
+                <input type="radio" name="gender" value="male">Эркек
+                <input type="radio" name="gender" value="female">Аял
+            </div>
+            <div id="age-group-question-section">
+                <p>Жашыңыз</p>
+                <select id="age-group" name="age-group">
+                    <option value="7-18">7-18</option>
+                    <option value="18-24">18-24</option>
+                    <option value="25-34">25-34</option>
+                    <option value="35-44">35-44</option>
+                    <option value="45-54">45-54</option>
+                    <option value="55+">55+</option>
+                </select>
+            </div>
+            <div id="location-question-section">
+                <p>Жайгашкан жер</p>
+                <input type="radio" name="location" value="city">Шаар
+                <input type="radio" name="location" value="village">Айыл
+            </div>
+            <div id="region-question-section">
+                <p>Аймак</p>
+                <select id="region" name="region">
+                    <option value="Чүй">Чүй</option>
+                    <option value="Ош">Ош</option>
+                    <option value="Баткен">Баткен</option>
+                    <option value="Нарын">Нарын</option>
+                    <option value="Жалал-Абад">Жалал-Абад</option>
+                    <option value="Талас">Талас</option>
+                    <option value="Ыссык-Көл">Ыссык-Көл</option>
+                </select>
+            </div>
         </div>
     </div>
     <div id="result" style="display: none;"></div>
