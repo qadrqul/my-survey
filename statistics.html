@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика опроса</title>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuidv4.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="statistics.css">
+</head>
+<body>
+<h1>Статистика опроса</h1>
+<div id="total-responses">Общее количество ответов: <span id="response-count"></span></div>
+<div id="charts-section">
+    <div>
+        <canvas id="resultsChart" width="400" height="400"></canvas>
+    </div>
+    <div><canvas id="regionChart" width="400" height="400"></canvas></div>
+    <div><canvas id="locationChart" width="400" height="400"></canvas></div>
+    <div><canvas id="ageChart" width="400" height="400"></canvas></div>
+</div>
+<script src="scripts.js"></script>
+<script src="statistics.js" defer></script>
+</body>
+</html>

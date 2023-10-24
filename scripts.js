@@ -279,3 +279,4 @@ Promise.all([
     .catch(error => {
         console.error("Файлдарды көчүргөндө ката чыкты: ", error);
     });
+

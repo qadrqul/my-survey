@@ -26,20 +26,17 @@ h1 {
     margin: 0 auto 20px;
 }
 
-#quiz, #language-questions-section, #proverbs-questions-section {
+.section {
     text-align: left;
     padding: 20px;
     background-color: #fff;
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
-}
-
-#language-questions-section{
     color: #536680;
 }
 
-#quiz p, #language-questions-section p, #proverbs-questions-section p, #additional-questions-section p {
+.section p {
     font-size: 18px;
     margin-bottom: 10px;
 }
@@ -68,7 +65,7 @@ button {
     cursor: pointer;
 }
 
-button#submit-button:hover {
+button:hover {
     background-color: #0056b3;
 }
 
@@ -83,17 +80,3 @@ button#submit-button:hover {
     text-align: center;
     margin-top: 20px;
 }
-#additional-questions-section {
-    text-align: left;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    color: #536680;
-}
-
-#additional-questions-section p {
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
